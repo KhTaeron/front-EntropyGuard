@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import api from "../api/axios";
 
 export default function Login() {
   const { login } = useAuth();
@@ -19,17 +20,20 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      // 👉 ici tu peux appeler ton API réelle plus tard
-      // ex: const { data } = await api.post("/api/login", { email, password: pwd });
-      // login({ token: data.token, user: data.user });
+      const { data } = await api.post("/api/login_check", {
+        email: email,
+        password: pwd,
+      });
 
-      // pour l’instant : login "fake"
-      await new Promise((r) => setTimeout(r, 500)); // petite latence
-      if (!email || !pwd) throw new Error("Please fill in all fields.");
-      login({ token: "fake-token", user: { email } });
+      const token = data.token;
+      if (!token) throw new Error("Token manquant dans la réponse.");
+
+      login({ token, user: { email } });
       navigate("/");
     } catch (e) {
-      setErr(e.message || "Login failed.");
+      const msg =
+        e?.response?.data?.message || e?.message || "Échec de la connexion.";
+      setErr(msg);
     } finally {
       setLoading(false);
     }
