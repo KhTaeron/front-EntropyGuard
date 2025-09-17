@@ -3,14 +3,15 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import api from "../api/axios";
 
-export default function Login() {
+export default function Register() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [pseudo, setPseudo] = useState("");
   const [pwd, setPwd] = useState("");
+  const [rpwd, setRPwd] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
@@ -20,20 +21,17 @@ export default function Login() {
     setErr("");
     setLoading(true);
     try {
-      const { data } = await api.post("/api/login_check", {
-        email: email,
-        password: pwd,
-      });
+      // 👉 ici tu peux appeler ton API réelle plus tard
+      // ex: const { data } = await api.post("/api/login", { email, password: pwd });
+      // login({ token: data.token, user: data.user });
 
-      const token = data.token;
-      if (!token) throw new Error("Token manquant dans la réponse.");
-
-      login({ token, user: { email } });
+      // pour l’instant : login "fake"
+      await new Promise((r) => setTimeout(r, 500)); // petite latence
+      if (!email || !pwd) throw new Error("Please fill in all fields.");
+      login({ token: "fake-token", user: { email } });
       navigate("/");
     } catch (e) {
-      const msg =
-        e?.response?.data?.message || e?.message || "Échec de la connexion.";
-      setErr(msg);
+      setErr(e.message || "Login failed.");
     } finally {
       setLoading(false);
     }
@@ -47,7 +45,7 @@ export default function Login() {
         aria-labelledby="loginTitle"
       >
         <h1 id="loginTitle" className="entropy-title">
-          Welcome back
+          Welcome on EntropyGuard !
         </h1>
 
         <label className="entropy-label" htmlFor="email">
@@ -63,6 +61,21 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
+          />
+        </div>
+
+        <label className="entropy-label" htmlFor="pseudo">
+          Pseudo
+        </label>
+        <div className="entropy-input-wrap">
+          <input
+            id="pseudo"
+            className="entropy-input"
+            placeholder="pseudo"
+            value={pseudo}
+            onChange={(e) => setPseudo(e.target.value)}
+            required
+            autoComplete="pseudo"
           />
         </div>
 
@@ -90,6 +103,30 @@ export default function Login() {
           </button>
         </div>
 
+        <label className="entropy-label" htmlFor="password">
+          Repeat Password
+        </label>
+        <div className="entropy-input-wrap entropy-input-with-btn">
+          <input
+            id="password"
+            type={showPwd ? "text" : "password"}
+            className="entropy-input"
+            placeholder="••••••••"
+            value={rpwd}
+            onChange={(e) => setRPwd(e.target.value)}
+            required
+            autoComplete="current-password"
+          />
+          <button
+            type="button"
+            className="entropy-btn tiny"
+            onClick={() => setShowPwd((v) => !v)}
+            aria-label={showPwd ? "Hide password" : "Show password"}
+          >
+            <FontAwesomeIcon icon={showPwd ? faEyeSlash : faEye} />
+          </button>
+        </div>
+
         {err && (
           <p className="entropy-error" role="alert">
             {err}
@@ -101,7 +138,7 @@ export default function Login() {
           type="submit"
           disabled={loading}
         >
-          {loading ? "Signing in…" : "Sign in"}
+          {loading ? "Signing up…" : "Sign up"}
         </button>
 
         <p className="entropy-helper">
