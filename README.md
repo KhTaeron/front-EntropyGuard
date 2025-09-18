@@ -20,3 +20,8 @@ yarn dev
 pnpm dev
 
 
+---
+
+L’API est disponible par défaut sur :  
+http://localhost:5173/
+
